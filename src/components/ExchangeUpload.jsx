@@ -1,5 +1,7 @@
 import React from "react";
-import loadTextFile from '../util/loadTextFile';
+import { Exchange } from "../data/exchanges";
+import { readBitstampExport } from "../util/bitstamp";
+import { OnFileParsedContext } from "../data/context";
 
 const ExchangeUpload = ({ exchange }) => {
   const onDragOver = e => {
@@ -7,17 +9,34 @@ const ExchangeUpload = ({ exchange }) => {
     // Set the dropEffect to move
     e.dataTransfer.dropEffect = "move";
   };
-  const onDrop = async e => {
-    e.preventDefault();
-    // Get the id of the target and add the moved element to the target's DOM
-    // const data = e.dataTransfer.getData("text/plain");
-    const file = await loadTextFile(e.dataTransfer.files[0]);
-    console.log(file);
-  };
+
   return (
-    <div className="item" onDragOver={onDragOver} onDrop={onDrop}>
-      <p>{exchange}</p>
-    </div>
+    <OnFileParsedContext.Consumer>
+      {onFileParsed => (
+        <div
+          className="item"
+          onDragOver={onDragOver}
+          onDrop={async e => {
+            e.preventDefault();
+
+            const file = e.dataTransfer.files[0];
+
+            switch (exchange) {
+              case Exchange.BITSTAMP: {
+                onFileParsed(await readBitstampExport(file));
+
+                break;
+              }
+              default: {
+                console.error(`Unhandled exchange ${exchange}`);
+              }
+            }
+          }}
+        >
+          <p>{exchange}</p>
+        </div>
+      )}
+    </OnFileParsedContext.Consumer>
   );
 };
 
