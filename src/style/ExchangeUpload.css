@@ -1,0 +1,11 @@
+.exchange-upload {
+    display: flex;
+    width: 100%;
+}
+
+.exchange-upload > div {
+    width: 200px;
+    height: 200px;
+    margin-right: 5px;
+    background-color: #aaa;
+}
