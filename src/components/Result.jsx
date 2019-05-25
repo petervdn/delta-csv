@@ -1,12 +1,25 @@
 import React from "react";
 import moment from "moment";
+import "../style/Result.css";
+import { deltaMomentFormat } from "../util/miscUtils";
 
-const skipColumns = [9, 10, 11];
+const skipColumns = [9, 10, 11, 14];
 
 const parseColumnContent = (row, col, content) => {
-  if (row > 0) {
+  if (row === 0) {
+    const labels = {
+      "Base amount": "amount",
+      "Base currency": "curr",
+      "Quote amount": "costs",
+      "Quote currency": "curr",
+      "Fee currency": "curr",
+      "Sent/Received from": "from",
+      Exchange: "Exch"
+    };
+    return labels[content] || content;
+  } else {
     if (col === 0) {
-      return moment(content).format("DD-MM YYYY");
+      return moment(content, deltaMomentFormat).format("DD-MM-YYYY");
     }
   }
 
@@ -21,7 +34,14 @@ const Result = ({ result }) => {
         <tbody>
           {result.map((line, rowIndex) => {
             return (
-              <tr key={rowIndex}>
+              <tr
+                key={rowIndex}
+                style={{
+                  color: rowIndex === 0 ? "#FFF" : "",
+                  backgroundColor:
+                    rowIndex === 0 ? "#444" : rowIndex % 2 ? "#eee" : ""
+                }}
+              >
                 {line
                   .split(",")
                   .filter(

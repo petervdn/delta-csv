@@ -69,7 +69,8 @@ export const readBitstampExport = async file => {
       }
 
       if (type === "TRANSFER") {
-        notes = `transfer from ${from} to ${to}`;
+        // notes = `transfer from ${from} to ${to}`;
+        notes = 'transfer';
       }
 
       if (type) {

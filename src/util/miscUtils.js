@@ -19,9 +19,12 @@ export const createDeltaLine = (
   return `${date},${type},${exchange},${amount},${currency},${quote},${quoteCurrency},${fee},${feeCurrency},,,,${from ||
     ""},${to || ""},${notes || ""}`;
 };
-export const momentToDeltaTimeString = momentInstance => {
-  return momentInstance.format("YYYY-MM-DD HH:MM:SS Z");
-};
+
+export const deltaMomentFormat = "YYYY-MM-DD HH:MM:SS Z";
+
+export const momentToDeltaTimeString = moment =>
+  moment.format(deltaMomentFormat);
+
 export const writeCsv = (lines, filename) => {
   // change extension to csv
   const splitName = filename.split(".");
