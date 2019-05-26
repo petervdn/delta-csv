@@ -5,9 +5,9 @@ import { deltaMomentFormat } from "../util/miscUtils";
 
 const skipColumns = [9, 10, 11, 14];
 
-const parseColumnContent = (row, col, content) => {
+const parseColumnContent = (row: number, col: number, content: string) => {
   if (row === 0) {
-    const labels = {
+    const labels: {[key: string]: string} = {
       "Base amount": "amount",
       "Base currency": "curr",
       "Quote amount": "costs",
@@ -26,7 +26,9 @@ const parseColumnContent = (row, col, content) => {
   return content;
 };
 
-const Result = ({ result }) => {
+type ResultData = Array<string>;
+
+const Result = ({ result }: {result: ResultData}) => {
   return (
     <div>
       <h3>Results</h3>

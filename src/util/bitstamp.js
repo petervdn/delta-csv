@@ -10,8 +10,8 @@ function getDateFromLine(line) {
   return momentToDeltaTimeString(m);
 }
 function removeDateFromLine(line) {
-  const start = line.indexOf(',"') + 2;
-  const end = line.indexOf('",');
+  const start = line.indexOf(',"') + 1;
+  const end = line.indexOf('",') + 1;
   const date = line.substr(start, end - start);
   return line.replace(date, "DATE");
 }
@@ -20,12 +20,16 @@ export const readBitstampExport = async file => {
   const fileContent = await loadTextFile(file);
   const lines = [];
 
-  fileContent.split("\n").forEach(line => {
+  fileContent.split("\n").forEach((line, index) => {
+    if(index ===0) return;
     // const splitLine = line.split(',');
     if (line.length) {
       const date = getDateFromLine(line);
       const lineWithoutDate = removeDateFromLine(line);
       const split = lineWithoutDate.split(",");
+    console.log(lineWithoutDate);
+    // console.log(lineWithoutDate);
+    console.log('');
 
       const exchange = "Bitstamp";
       let type;
@@ -43,19 +47,23 @@ export const readBitstampExport = async file => {
         case "Deposit": {
           if (currency === "EUR") {
             notes = "fiat deposit from bank";
-            type = "DEPOSIT";
+            // type = "DEPOSIT";
           } else if (currency === "ETH") {
-            from = "Binance";
-            to = "Bitstamp";
+            // from = "Binance";
+            // to = "Bitstamp";
             type = "TRANSFER";
+          } else {
+            console.warn('Unhandled currency', currency);
           }
           break;
         }
         case "Withdrawal": {
           if (currency === "ETH") {
             type = "TRANSFER";
-            to = "Binance";
-            from = "Bitstamp";
+            // to = "Binance";
+            // from = "Bitstamp";
+          } else {
+            console.warn('Unhandled currency', currency);
           }
           break;
         }
@@ -65,6 +73,10 @@ export const readBitstampExport = async file => {
           quoteCurrency = split[4].split(" ")[1];
           fee = split[6].split(" ")[0];
           feeCurrency = split[6].split(" ")[1];
+          break;
+        }
+        default: {
+          console.warn(`Unhandled item ${split[0]}`);
         }
       }
 
