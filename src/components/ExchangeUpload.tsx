@@ -1,18 +1,18 @@
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import { Exchange } from "../data/exchanges";
-import { readBitstampExport } from "../util/bitstamp";
 import { OnFileParsedContext } from "../data/context";
+import { ResultRows } from "../data/types";
+import { readBitstampExport } from "../util/bitstamp";
 
-const ExchangeUpload = ({ exchange }) => {
-  const onDragOver = e => {
-    e.preventDefault();
-    // Set the dropEffect to move
-    e.dataTransfer.dropEffect = "move";
+const ExchangeUpload = ({ exchange }: { exchange: string }) => {
+  const onDragOver = (event: SyntheticEvent<HTMLElement, DragEvent>) => {
+    event.preventDefault();
+    event.nativeEvent.dataTransfer!.dropEffect = "move";
   };
 
   return (
     <OnFileParsedContext.Consumer>
-      {onFileParsed => (
+      {(addRows: (rows: ResultRows[]) => void) => (
         <div
           className="item"
           onDragOver={onDragOver}
@@ -23,7 +23,7 @@ const ExchangeUpload = ({ exchange }) => {
 
             switch (exchange) {
               case Exchange.BITSTAMP: {
-                onFileParsed(await readBitstampExport(file));
+                addRows(await readBitstampExport(file));
 
                 break;
               }
