@@ -14,66 +14,44 @@ function removeDateFromLine(line: string): string {
   return line.replace(date, "DATE");
 }
 
-
-
 export const parseBitstampExport = (fileContent: string): ResultRows[] => {
-    const rows: ResultRows[] = [];
+  const rows: ResultRows[] = [];
 
   fileContent.split("\n").forEach((line, index) => {
-    if (index === 0) return;
-    // const splitLine = line.split(',');
+    if (index === 0) return; // header csv info
+
     if (line.length) {
       console.log(line);
       const date = getDateFromLine(line);
       const lineWithoutDate = removeDateFromLine(line);
       const split = lineWithoutDate.split(",");
-      // console.log(lineWithoutDate);
-      // console.log(lineWithoutDate);
-      console.log("");
 
       const exchange = "Bitstamp";
       let type: string = "";
-      let amount: number = parseFloat(split[3].split(" ")[0]);
-      let currency = split[3].split(" ")[1];
-      // let notes = "";
-      // let from = "";
-      // let to = "";
-      let quote: number | undefined;
-      let quoteCurrency = "";
-      let fee: number | undefined;
-      let feeCurrency = "";
+
+      let base = split[3];
+      let baseAmount = base ? parseFloat(base.split(" ")[0]) : undefined;
+      let baseCurrency = base ? base.split(" ")[1] : undefined;
+
+      const quote = split[4];
+      let quoteAmount = quote ? parseFloat(quote.split(" ")[0]) : undefined;
+      let quoteCurrency = quote ? quote.split(" ")[1] : undefined;
+
+      const fee = split[6];
+      let feeAmount = fee ? parseFloat(fee.split(" ")[0]) : undefined;
+      let feeCurrency = fee ? fee.split(" ")[1] : undefined;
 
       switch (split[0]) {
         case "Deposit": {
-          if (currency === "EUR") {
-            // notes = "fiat deposit from bank";
-            type = "DEPOSIT";
-            // } else if (currency === "ETH") {
-            // from = "Binance";
-            // to = "Bitstamp";
-          } else {
-            type = "TRANSFER";
-            console.warn("Unhandled currency", currency);
-          }
+          type = baseCurrency === "EUR" ? "DEPOSIT" : "TRANSFER";
           break;
         }
         case "Withdrawal": {
-          type = "TRANSFER";
-          // if (currency === "ETH") {
-          //   // type = "TRANSFER";
-          //   // to = "Binance";
-          //   // from = "Bitstamp";
-          // } else {
-          //   console.warn("Unhandled currency", currency);
-          // }
+          type = baseCurrency === "EUR" ? "WITHDRAW" : "TRANSFER";
           break;
         }
         case "Market": {
-          type = split[7].toUpperCase().trim();
-          quote = parseFloat(split[4].split(" ")[0]);
-          quoteCurrency = split[4].split(" ")[1];
-          fee = parseFloat(split[6].split(" ")[0]);
-          feeCurrency = split[6].split(" ")[1];
+          type = split[7].toUpperCase().trim(); /// buy or sell
           break;
         }
         default: {
@@ -81,34 +59,27 @@ export const parseBitstampExport = (fileContent: string): ResultRows[] => {
         }
       }
 
-      // if (type === "TRANSFER") {
-      // notes = `transfer from ${from} to ${to}`;
-      // notes = 'transfer';
-      // }
-
-      if (type !== undefined) {
+      if (type) {
         rows.push({
           type,
           date,
           exchange,
           base: {
-            amount,
-            currency
+            amount: baseAmount!,
+            currency: baseCurrency!
           },
-          quote:
-            quote !== undefined
-              ? {
-                  amount: quote,
-                  currency: quoteCurrency
-                }
-              : undefined,
-          fee:
-            fee !== undefined
-              ? {
-                  amount: fee,
-                  currency: feeCurrency
-                }
-              : undefined
+          quote: quote
+            ? {
+                amount: quoteAmount!,
+                currency: quoteCurrency!
+              }
+            : undefined,
+          fee: fee
+            ? {
+                amount: feeAmount!,
+                currency: feeCurrency!
+              }
+            : undefined
         });
       } else {
         console.log("Skipping line:", line);
