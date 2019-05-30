@@ -1,4 +1,3 @@
-import loadTextFile from "./loadTextFile";
 import moment, { Moment } from "moment";
 import { ResultRows } from "../data/types";
 
@@ -15,9 +14,10 @@ function removeDateFromLine(line: string): string {
   return line.replace(date, "DATE");
 }
 
-export const readBitstampExport = async (file: File): Promise<ResultRows[]> => {
-  const fileContent = await loadTextFile(file);
-  const rows: ResultRows[] = [];
+
+
+export const parseBitstampExport = (fileContent: string): ResultRows[] => {
+    const rows: ResultRows[] = [];
 
   fileContent.split("\n").forEach((line, index) => {
     if (index === 0) return;
@@ -110,22 +110,6 @@ export const readBitstampExport = async (file: File): Promise<ResultRows[]> => {
                 }
               : undefined
         });
-        // lines.push(
-        //   createDeltaLine(
-        //     date,
-        //     type,
-        //     exchange,
-        //     amount,
-        //     currency,
-        //     quote,
-        //     quoteCurrency,
-        //     fee,
-        //     feeCurrency,
-        //     from,
-        //     to,
-        //     notes
-        //   )
-        // );
       } else {
         console.log("Skipping line:", line);
       }
